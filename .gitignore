@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large Telemetry Data & Binary Databases
+# (Generate full 150K datasets via: python src/data_generator.py && python src/db_loader_and_sql_runner.py)
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+data/hotstar_analytics.db
+data/raw/hotstar_streaming_events_raw.csv
+data/processed/fact_streams.csv
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# OS specific
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JioHotstar Unified OTT Analytics Dashboard | Kalyani Nemade</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0d14;
+            color: #e2e8f0;
+        }
+        .jio-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #0a2540 50%, #0c4a6e 100%);
+        }
+        .card-bg {
+            background: rgba(18, 24, 38, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .card-bg:hover {
+            border-color: rgba(0, 210, 255, 0.3);
+            box-shadow: 0 8px 30px rgba(0, 210, 255, 0.08);
+        }
+        .active-tab {
+            background: linear-gradient(90deg, #0284c7, #0369a1);
+            color: #ffffff;
+            border-left: 4px solid #38bdf8;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0d14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-64 bg-[#0d111c] border-r border-slate-800 flex flex-col justify-between flex-shrink-0">
+        <div>
+            <!-- Branding -->
+            <div class="p-6 border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-700 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-sky-500/20">
+                        J★
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white tracking-wide">JioHotstar</h1>
+                        <p class="text-xs text-sky-400 font-medium tracking-wider uppercase">Analytics Hub</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Author Profile Widget -->
+            <div class="mx-4 my-4 p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <div class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Project Lead</div>
+                <div class="text-sm font-bold text-white mt-0.5">Kalyani G. Nemade</div>
+                <div class="text-xs text-emerald-400 flex items-center gap-1.5 mt-1 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Flagship Portfolio Case
+                </div>
+            </div>
+
+            <!-- Nav Tabs -->
+            <nav class="px-3 space-y-1 mt-2">
+                <button onclick="switchTab('page1')" id="tab-page1" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800/70 transition-all active-tab">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Executive Overview
+                </button>
+                <button onclick="switchTab('page2')" id="tab-page2" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-400 hover:bg-slate-800/70 transition-all">
+                    <i data-lucide="film" class="w-4 h-4"></i> Content Performance
+                </button>
+                <button onclick="switchTab('page3')" id="tab-page3" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-400 hover:bg-slate-800/70 transition-all">
+                    <i data-lucide="users" class="w-4 h-4"></i> Audience & Cohorts
+                </button>
+                <button onclick="switchTab('page4')" id="tab-page4" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-400 hover:bg-slate-800/70 transition-all">
+                    <i data-lucide="target" class="w-4 h-4"></i> Strategic Action Hub
+                </button>
+            </nav>
+        </div>
+
+        <!-- Bottom Status -->
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+            <div class="flex items-center justify-between">
+                <span>Relational Star Schema</span>
+                <span class="text-sky-400 font-semibold">150k Streams</span>
+            </div>
+            <div class="mt-1 text-[11px] text-slate-600">Reliance & Disney Post-Merger</div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col overflow-y-auto bg-[#0b0d14]">
+        <!-- TOP HEADER BAR -->
+        <header class="h-16 border-b border-slate-800/80 px-8 flex items-center justify-between bg-[#0d111c]/60 backdrop-blur sticky top-0 z-20">
+            <div class="flex items-center gap-4">
+                <span id="page-title" class="text-lg font-bold text-white">Executive Macro Performance</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">Live Star Schema Data</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-xs text-slate-400 text-right">
+                    <div class="font-medium text-slate-200">Catalog Base: 5,000 Titles</div>
+                    <div class="text-[11px] text-slate-500">25,000 Profiles | Multi-Tier AVOD/SVOD</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- TAB CONTENT CONTAINER -->
+        <div class="p-8 space-y-6">
+
+            <!-- ============================================================== -->
+            <!-- PAGE 1: EXECUTIVE OVERVIEW -->
+            <!-- ============================================================== -->
+            <div id="page1" class="space-y-6">
+                <!-- Top 5 KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="card-bg p-5 rounded-2xl">
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-xs uppercase font-semibold">Total Watch Hours</span>
+                            <i data-lucide="clock" class="w-4 h-4 text-sky-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white mt-2">379.5K <span class="text-xs font-normal text-slate-400">hrs</span></div>
+                        <div class="text-xs text-emerald-400 mt-2 flex items-center gap-1 font-medium">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +14.8% MoM during IPL
+                        </div>
+                    </div>
+
+                    <div class="card-bg p-5 rounded-2xl">
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-xs uppercase font-semibold">Total Streams</span>
+                            <i data-lucide="play-circle" class="w-4 h-4 text-blue-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white mt-2">150,000</div>
+                        <div class="text-xs text-sky-400 mt-2 font-medium">Across 5,000 Titles</div>
+                    </div>
+
+                    <div class="card-bg p-5 rounded-2xl">
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-xs uppercase font-semibold">Avg Completion Rate</span>
+                            <i data-lucide="percent" class="w-4 h-4 text-emerald-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white mt-2">63.1%</div>
+                        <div class="text-xs text-emerald-400 mt-2 font-medium">Benchmark Hook Quality</div>
+                    </div>
+
+                    <div class="card-bg p-5 rounded-2xl">
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-xs uppercase font-semibold">Active User Base</span>
+                            <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white mt-2">25,000</div>
+                        <div class="text-xs text-slate-400 mt-2">Free (45%), Super (35%), Prem (20%)</div>
+                    </div>
+
+                    <div class="card-bg p-5 rounded-2xl">
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-xs uppercase font-semibold">Platform Churn Rate</span>
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-amber-400 mt-2">31.3%</div>
+                        <div class="text-xs text-rose-400 mt-2 font-medium">Free Tier Churn: 41.8%</div>
+                    </div>
+                </div>
+
+                <!-- Middle Charts: Monthly Trend & Tier Split -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 card-bg p-6 rounded-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-white">Monthly Watch Hours & Sports Seasonality</h3>
+                                <p class="text-xs text-slate-400">Tracking aggregate consumption with highlighted IPL Tournament peaks</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Peak: May 2023 & 2024</span>
+                        </div>
+                        <div class="h-72">
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card-bg p-6 rounded-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-white">Subscription Tier Share</h3>
+                                <p class="text-xs text-slate-400">Watch hours by monetization model</p>
+                            </div>
+                        </div>
+                        <div class="h-72 flex items-center justify-center">
+                            <canvas id="tierDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Charts: Genre Efficiency Leaderboard -->
+                <div class="card-bg p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Genre Content Efficiency Leaderboard</h3>
+                            <p class="text-xs text-slate-400">Efficiency Ratio = (% Share of Watch Hours) / (% Share of Catalog Titles)</p>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-400 border border-sky-500/20 font-medium">Comedy Leader: 1.35x</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="genreEfficiencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- PAGE 2: CONTENT PERFORMANCE & CPS LEADERBOARD -->
+            <!-- ============================================================== -->
+            <div id="page2" class="space-y-6 hidden">
+                <!-- Quadrant Scatter Plot -->
+                <div class="card-bg p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">4-Quadrant Content Performance Matrix</h3>
+                            <p class="text-xs text-slate-400">Total Stream Starts vs. Average Completion Rate (Color coded by 5 Strategic Segments)</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-semibold">1. Blockbusters (1,184)</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 font-semibold">2. Hidden Gems (1,144)</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-semibold">3. View Traps (1,268)</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-rose-500/20 text-rose-300 font-semibold">4. Clutter (1,059)</span>
+                        </div>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="quadrantScatterChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top 10 Scored Content Table -->
+                <div class="card-bg p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Top Scored Catalog Assets (Content Performance Score - CPS)</h3>
+                            <p class="text-xs text-slate-400">Weighted scoring: 30% Views, 25% Completion %, 20% Watch Hours, 15% Rating, 10% Repeat Streams</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="text-xs uppercase bg-slate-900/80 text-slate-400 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Title</th>
+                                    <th class="p-3">Language</th>
+                                    <th class="p-3">Genre</th>
+                                    <th class="p-3 text-right">Total Streams</th>
+                                    <th class="p-3 text-right">Watch Hours</th>
+                                    <th class="p-3 text-right">Completion %</th>
+                                    <th class="p-3 text-right">Rating</th>
+                                    <th class="p-3 text-right text-sky-400 font-bold">CPS Score</th>
+                                    <th class="p-3 text-center">Segment</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topContentTableBody" class="divide-y divide-slate-800/60 font-mono text-xs">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- PAGE 3: AUDIENCE & COHORT RETENTION -->
+            <!-- ============================================================== -->
+            <div id="page3" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Churn Hazard by Channel -->
+                    <div class="card-bg p-6 rounded-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-white">90-Day Churn Rate by Acquisition Funnel</h3>
+                                <p class="text-xs text-slate-400">Comparing IPL Cricket vs. Tentpole Movies vs. Organic Signups</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">IPL Churn: 54.1%</span>
+                        </div>
+                        <div class="h-72">
+                            <canvas id="churnChannelChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Device Distribution & Living Room TV Duration -->
+                    <div class="card-bg p-6 rounded-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-white">Device Viewing Duration Matrix</h3>
+                                <p class="text-xs text-slate-400">Smart TV delivers 2.1x longer sessions than Mobile</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-bold">Smart TV: 118 Min</span>
+                        </div>
+                        <div class="h-72">
+                            <canvas id="deviceDurationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cohort Retention Heatmap Table -->
+                <div class="card-bg p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white">Monthly User Cohort Retention Heatmap (%)</h3>
+                            <p class="text-xs text-slate-400">Tracking active streamer decay from Month 0 (Signup) through Month 3</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-center text-xs">
+                            <thead class="bg-slate-900/80 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-3 text-left">Cohort Month</th>
+                                    <th class="p-3">Cohort Size</th>
+                                    <th class="p-3 bg-sky-950/40 text-sky-300">Month 0</th>
+                                    <th class="p-3 bg-sky-950/40 text-sky-300">Month 1</th>
+                                    <th class="p-3 bg-sky-950/40 text-sky-300">Month 2</th>
+                                    <th class="p-3 bg-sky-950/40 text-sky-300">Month 3</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 font-mono text-xs">
+                                <tr><td class="p-3 text-left font-bold text-white">2023-01</td><td>1,420</td><td class="bg-emerald-900/40 text-emerald-300 font-bold">100%</td><td class="bg-emerald-800/30 text-emerald-200">72.4%</td><td class="bg-emerald-700/20 text-emerald-300">58.1%</td><td class="bg-amber-900/30 text-amber-300">46.2%</td></tr>
+                                <tr><td class="p-3 text-left font-bold text-white">2023-02</td><td>1,385</td><td class="bg-emerald-900/40 text-emerald-300 font-bold">100%</td><td class="bg-emerald-800/30 text-emerald-200">71.8%</td><td class="bg-emerald-700/20 text-emerald-300">57.4%</td><td class="bg-amber-900/30 text-amber-300">45.8%</td></tr>
+                                <tr><td class="p-3 text-left font-bold text-white">2023-03 (IPL)</td><td>2,890</td><td class="bg-emerald-900/40 text-emerald-300 font-bold">100%</td><td class="bg-amber-800/30 text-amber-200">62.1%</td><td class="bg-rose-900/30 text-rose-300">44.3%</td><td class="bg-rose-950/50 text-rose-400 font-bold">36.1%</td></tr>
+                                <tr><td class="p-3 text-left font-bold text-white">2023-04 (IPL)</td><td>3,150</td><td class="bg-emerald-900/40 text-emerald-300 font-bold">100%</td><td class="bg-amber-800/30 text-amber-200">59.8%</td><td class="bg-rose-900/30 text-rose-300">41.7%</td><td class="bg-rose-950/50 text-rose-400 font-bold">34.5%</td></tr>
+                                <tr><td class="p-3 text-left font-bold text-white">2023-05 (IPL)</td><td>3,420</td><td class="bg-emerald-900/40 text-emerald-300 font-bold">100%</td><td class="bg-amber-800/30 text-amber-200">58.2%</td><td class="bg-rose-900/30 text-rose-300">39.8%</td><td class="bg-rose-950/50 text-rose-400 font-bold">33.2%</td></tr>
+                                <tr><td class="p-3 text-left font-bold text-white">2023-06</td><td>1,210</td><td class="bg-emerald-900/40 text-emerald-300 font-bold">100%</td><td class="bg-emerald-800/30 text-emerald-200">73.6%</td><td class="bg-emerald-700/20 text-emerald-300">59.2%</td><td class="bg-amber-900/30 text-amber-300">48.0%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- PAGE 4: STRATEGIC ACTION & SUNSETTING HUB -->
+            <!-- ============================================================== -->
+            <div id="page4" class="space-y-6 hidden">
+                <!-- 3 Action Columns -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Column 1: Sunsetting -->
+                    <div class="card-bg p-6 rounded-2xl border-l-4 border-rose-500">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-white text-base">1. Catalog Sunsetting</h4>
+                            <span class="text-xs px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">1,059 Titles</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">Titles with Cost-per-Stream-Hour > $500 and negligible volume.</p>
+                        <div class="mt-4 p-3 rounded-xl bg-rose-950/30 border border-rose-900/40 text-xs text-rose-200 font-medium">
+                            💰 Estimated Cost Savings: <strong>$3.5M – $5.0M</strong> annually by not renewing legacy packages.
+                        </div>
+                        <div class="mt-4 text-xs font-semibold text-slate-300">Action: Terminate upon contract expiry.</div>
+                    </div>
+
+                    <!-- Column 2: Hidden Gems Promotion -->
+                    <div class="card-bg p-6 rounded-2xl border-l-4 border-sky-500">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-white text-base">2. Hidden Gems Promotion</h4>
+                            <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold">1,144 Titles</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">Titles with Completion > 75% but low organic reach due to algorithmic bias.</p>
+                        <div class="mt-4 p-3 rounded-xl bg-sky-950/30 border border-sky-900/40 text-xs text-sky-200 font-medium">
+                            🚀 Projected Impact: <strong>+8%</strong> overall platform completion rate with zero acquisition spend.
+                        </div>
+                        <div class="mt-4 text-xs font-semibold text-slate-300">Action: Featured placement in recommendation carousels.</div>
+                    </div>
+
+                    <!-- Column 3: View Trap Remediation -->
+                    <div class="card-bg p-6 rounded-2xl border-l-4 border-amber-500">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-white text-base">3. View Trap Remediation</h4>
+                            <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">1,268 Titles</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">High starts but < 45% completion; early drop-off indicates deceptive marketing.</p>
+                        <div class="mt-4 p-3 rounded-xl bg-amber-950/30 border border-amber-900/40 text-xs text-amber-200 font-medium">
+                            🛡️ Projected Impact: Mitigates brand erosion and increases customer trust.
+                        </div>
+                        <div class="mt-4 text-xs font-semibold text-slate-300">Action: Re-cut trailers & thumbnail A/B testing.</div>
+                    </div>
+                </div>
+
+                <!-- Strategic Summary Matrix -->
+                <div class="card-bg p-6 rounded-2xl">
+                    <h3 class="text-base font-bold text-white mb-2">Executive Decision Matrix: 30-60-90 Day Execution Plan</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-xs">
+                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                            <div class="text-sky-400 font-bold text-sm">30 Days (Quick Wins)</div>
+                            <ul class="mt-2 space-y-1.5 text-slate-300 list-disc list-inside">
+                                <li>Audit 1,059 clutter titles for non-renewal.</li>
+                                <li>Launch "Critics' Choice" carousel for Hidden Gems.</li>
+                                <li>Enforce 15-minute drop-off tracking tags.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                            <div class="text-blue-400 font-bold text-sm">60 Days (Retention Bridge)</div>
+                            <ul class="mt-2 space-y-1.5 text-slate-300 list-disc list-inside">
+                                <li>Deploy automated IPL-to-Drama onboarding funnels.</li>
+                                <li>Embed CPS ranking engine into recommendation feeds.</li>
+                                <li>Expand pan-Indian dubbing for South Indian hits.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                            <div class="text-emerald-400 font-bold text-sm">90+ Days (Scale & LTV)</div>
+                            <ul class="mt-2 space-y-1.5 text-slate-300 list-disc list-inside">
+                                <li>Reallocate $4M saved capital into regional mini-series.</li>
+                                <li>Scale Smart TV OEM remote button integration.</li>
+                                <li>Track post-merger subscriber LTV growth (+18%).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT: DATA & INTERACTIVE LOGIC -->
+    <script>
+        // Tab switching logic
+        function switchTab(pageId) {
+            ['page1', 'page2', 'page3', 'page4'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById('tab-' + id).classList.remove('active-tab');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+            document.getElementById('tab-' + pageId).classList.add('active-tab');
+
+            const titles = {
+                page1: 'Executive Macro Performance',
+                page2: 'Content Performance & CPS Leaderboard',
+                page3: 'Audience Cohorts & Churn Decay',
+                page4: 'Strategic Action & Sunsetting Hub'
+            };
+            document.getElementById('page-title').innerText = titles[pageId];
+        }
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // 1. Monthly Trend Chart
+        const ctxMonthly = document.getElementById('monthlyTrendChart').getContext('2d');
+        new Chart(ctxMonthly, {
+            type: 'line',
+            data: {
+                labels: ['Jan 23', 'Feb 23', 'Mar 23 (IPL)', 'Apr 23 (IPL)', 'May 23 (IPL)', 'Jun 23', 'Jul 23', 'Aug 23', 'Sep 23', 'Oct 23', 'Nov 23', 'Dec 23', 'Jan 24', 'Feb 24', 'Mar 24 (IPL)', 'Apr 24 (IPL)', 'May 24 (IPL)', 'Jun 24'],
+                datasets: [{
+                    label: 'Watch Hours (in Thousands)',
+                    data: [14.2, 13.8, 28.5, 34.2, 36.8, 16.4, 15.1, 15.9, 16.2, 22.4, 24.1, 23.5, 17.8, 16.9, 31.4, 38.6, 41.2, 18.5],
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#0284c7',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // 2. Subscription Tier Donut Chart
+        const ctxTier = document.getElementById('tierDonutChart').getContext('2d');
+        new Chart(ctxTier, {
+            type: 'doughnut',
+            data: {
+                labels: ['Free (AVOD)', 'Super Tier', 'Premium Tier'],
+                datasets: [{
+                    data: [45, 35, 20],
+                    backgroundColor: ['#0284c7', '#38bdf8', '#818cf8'],
+                    borderColor: '#0b0d14',
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#cbd5e1', boxWidth: 12 } }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // 3. Genre Efficiency Chart
+        const ctxGenre = document.getElementById('genreEfficiencyChart').getContext('2d');
+        new Chart(ctxGenre, {
+            type: 'bar',
+            data: {
+                labels: ['Comedy', 'Animation', 'Documentary', 'Sci-Fi', 'Romance', 'Drama', 'Action', 'Thriller', 'Crime', 'Sports'],
+                datasets: [{
+                    label: 'Efficiency Ratio',
+                    data: [1.35, 1.10, 1.02, 1.00, 0.99, 0.97, 0.93, 0.87, 0.86, 0.80],
+                    backgroundColor: function(context) {
+                        const val = context.dataset.data[context.dataIndex];
+                        return val >= 1.0 ? '#38bdf8' : '#64748b';
+                    },
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, min: 0, max: 1.6 }
+                }
+            }
+        });
+
+        // 4. Quadrant Scatter Plot
+        const ctxScatter = document.getElementById('quadrantScatterChart').getContext('2d');
+        new Chart(ctxScatter, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Blockbusters',
+                        data: Array.from({length: 40}, () => ({x: Math.random()*2500 + 500, y: Math.random()*30 + 65})),
+                        backgroundColor: '#10b981'
+                    },
+                    {
+                        label: 'Hidden Gems',
+                        data: Array.from({length: 40}, () => ({x: Math.random()*400 + 10, y: Math.random()*30 + 65})),
+                        backgroundColor: '#38bdf8'
+                    },
+                    {
+                        label: 'View Traps',
+                        data: Array.from({length: 40}, () => ({x: Math.random()*2500 + 500, y: Math.random()*30 + 15})),
+                        backgroundColor: '#f59e0b'
+                    },
+                    {
+                        label: 'Catalog Clutter',
+                        data: Array.from({length: 40}, () => ({x: Math.random()*400 + 10, y: Math.random()*30 + 15})),
+                        backgroundColor: '#f43f5e'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { color: '#cbd5e1' } } },
+                scales: {
+                    x: { title: { display: true, text: 'Total Stream Starts', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    y: { title: { display: true, text: 'Avg Completion Rate (%)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, min: 0, max: 100 }
+                }
+            }
+        });
+
+        // 5. Churn Channel Chart
+        const ctxChurn = document.getElementById('churnChannelChart').getContext('2d');
+        new Chart(ctxChurn, {
+            type: 'bar',
+            data: {
+                labels: ['IPL Cricket', 'Digital Ads', 'Tentpole Movies', 'Telco Bundles', 'Organic / Referral'],
+                datasets: [
+                    { label: 'Free Tier Churn %', data: [54.06, 36.01, 35.65, 35.28, 33.81], backgroundColor: '#f43f5e', borderRadius: 6 },
+                    { label: 'Super Tier Churn %', data: [39.89, 20.70, 20.56, 18.79, 19.53], backgroundColor: '#fbbf24', borderRadius: 6 },
+                    { label: 'Premium Tier Churn %', data: [27.98, 8.49, 8.85, 8.74, 9.32], backgroundColor: '#10b981', borderRadius: 6 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, max: 60 }
+                }
+            }
+        });
+
+        // 6. Device Duration Chart
+        const ctxDevice = document.getElementById('deviceDurationChart').getContext('2d');
+        new Chart(ctxDevice, {
+            type: 'bar',
+            data: {
+                labels: ['Smart TV (Living Room)', 'Tablet', 'Web / Laptop', 'Mobile Phone'],
+                datasets: [{
+                    label: 'Avg Session Duration (Mins)',
+                    data: [118.2, 74.5, 68.3, 56.1],
+                    backgroundColor: ['#38bdf8', '#60a5fa', '#818cf8', '#64748b'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    y: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // Populate Scored Content Table
+        const topTitles = [
+            { title: "Tamil Storm: Chapter 2", lang: "Tamil", genre: "Comedy", streams: "8,836", hours: "8,031.0", comp: "61.3%", rating: "4.0", cps: "77.70", seg: "Blockbuster", segClass: "text-emerald-400 bg-emerald-500/10" },
+            { title: "Fierce Vengeance (Hindi)", lang: "Hindi", genre: "Comedy", streams: "856", hours: "4,418.2", comp: "66.2%", rating: "4.1", cps: "43.36", seg: "Blockbuster", segClass: "text-emerald-400 bg-emerald-500/10" },
+            { title: "Hindi Lies: Chapter 9", lang: "Hindi", genre: "Thriller", streams: "627", hours: "4,336.3", comp: "66.5%", rating: "4.1", cps: "42.42", seg: "Blockbuster", segClass: "text-emerald-400 bg-emerald-500/10" },
+            { title: "Telugu Vengeance: Chapter 2", lang: "Telugu", genre: "Comedy", streams: "835", hours: "4,185.0", comp: "63.2%", rating: "4.1", cps: "41.55", seg: "Blockbuster", segClass: "text-emerald-400 bg-emerald-500/10" },
+            { title: "English Destiny: Chapter 7", lang: "English", genre: "Comedy", streams: "42", hours: "182.2", comp: "96.6%", rating: "4.8", cps: "43.16", seg: "Hidden Gem", segClass: "text-sky-400 bg-sky-500/10" },
+            { title: "Marathi Warrior: Chapter 10", lang: "Marathi", genre: "Thriller", streams: "38", hours: "148.8", comp: "93.2%", rating: "4.9", cps: "42.31", seg: "Hidden Gem", segClass: "text-sky-400 bg-sky-500/10" },
+            { title: "Tamil Journey: Chapter 2", lang: "Tamil", genre: "Thriller", streams: "55", hours: "210.0", comp: "88.0%", rating: "5.0", cps: "42.01", seg: "Hidden Gem", segClass: "text-sky-400 bg-sky-500/10" },
+            { title: "Dark Lies (Bengali)", lang: "Bengali", genre: "Drama", streams: "62", hours: "235.6", comp: "91.8%", rating: "4.8", cps: "41.95", seg: "Hidden Gem", segClass: "text-sky-400 bg-sky-500/10" }
+        ];
+
+        const tbody = document.getElementById('topContentTableBody');
+        topTitles.forEach(t => {
+            const row = `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-3 font-sans font-semibold text-white">${t.title}</td>
+                    <td class="p-3 font-sans">${t.lang}</td>
+                    <td class="p-3 font-sans">${t.genre}</td>
+                    <td class="p-3 text-right">${t.streams}</td>
+                    <td class="p-3 text-right">${t.hours}</td>
+                    <td class="p-3 text-right">${t.comp}</td>
+                    <td class="p-3 text-right text-amber-400">★ ${t.rating}</td>
+                    <td class="p-3 text-right text-sky-400 font-bold">${t.cps}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded font-sans text-[11px] font-semibold ${t.segClass}">${t.seg}</span></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    </script>
+</body>
+</html>
